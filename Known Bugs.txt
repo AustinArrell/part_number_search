@@ -9,4 +9,8 @@ Remember, I am still learning!
 
 -If there is a typo in the HTML on Precision Roller the model number will not come back correct
 	Example:	(MPC3003 displaying as MP3003)
+	Solution: Report these to me and I will clean them from the data
+
+-If a part number returns no model numbers it is because Precision Roller does not contain the part. I may be able to find additional websites that may contain info on these parts but outside of accessing official Ricoh documentation or websites its possible this may never be 100% solved.
+
 	
