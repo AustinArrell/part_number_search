@@ -135,3 +135,5 @@ if(len(part_list)>0):
     export_to_xlsx(search_for_models(part_list), part_list)
 else:
     print("Part list is empty! Please paste your part numbers 'Put_part_numbers_here.txt', save the file, and restart the program")
+
+input("Press Enter to Exit....")
