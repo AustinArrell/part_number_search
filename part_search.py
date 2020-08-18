@@ -11,15 +11,24 @@ import pandas as pd
 from bs4 import BeautifulSoup as bs
 
 
-part_list = ["AE020266","AD027034","AE011131"]
+part_list = []
 
 
-def retrieve_part_numbers(filepath_to_parts_file):
+def retrieve_part_numbers():
     """
     Grabs the list of part numbers from a file. For now it is a hard coded file
     but I would like to allow users to input a path to the file. Maybe even a
     folder that contains files.
     """
+    try:
+        file_with_part_numbers = open('Put_part_numbers_here.txt', 'r')
+        for line in file_with_part_numbers:
+            line = line.replace('\n','')
+            part_list.append(line)
+    except Exception as err:
+        print("Part Numbers File Not Found! Creating... \n\nPlease paste part numbers in 'Put_part_numbers_here.txt' and restart program!")
+        temp = open('Put_part_numbers_here.txt','w')
+
     pass
 
 
@@ -32,14 +41,18 @@ def format_model_number(model_numbers_to_format):
 
     #cut the garbage away from our model numbers
     for model_number in model_numbers_to_format:
+        model_number = model_number.upper()
         model_number = model_number.replace("-","").replace(" ","")
-        model_number = model_number.replace("TonerCartridges,SuppliesandParts","")
-        model_number = model_number.replace("Ricoh","")
-        model_number = model_number.replace("Lanier","")
-        model_number = model_number.replace("Alficio","")
-        model_number = model_number.replace("Aficio","")
-        model_number = model_number.replace("Savin","")
-        formatted_model_numbers.append(model_number)
+        model_number = model_number.replace("TONERCARTRIDGES,SUPPLIESANDPARTS","")
+        model_number = model_number.replace("RICOH","")
+        model_number = model_number.replace("LANIER","")
+        model_number = model_number.replace("ALFICIO","")
+        model_number = model_number.replace("AFICIO","")
+        model_number = model_number.replace("SP","")
+        model_number = model_number.replace("DN","")
+        #cleaning data
+        if not model_number.count("MP3003") and not  model_number.count("MP4503") and not  model_number.count("MPC80022"):
+            formatted_model_numbers.append(model_number)
 
     #remove duplicates and return
     formatted_model_numbers = sorted(set(formatted_model_numbers))
@@ -68,7 +81,8 @@ def search_for_models(part_num):
         #Search the html for model numbers
         for link in links_from_url:
             if(str(link.get('title')).count('Toner Cartridges,')):
-                unformatted_model_numbers.append(link.get('title'))
+                if(str(link.get('title')).upper().count('RICOH') or str(link.get('title')).upper().count('LANIER') or str(link.get('title')).upper().count('ALFICIO')):
+                    unformatted_model_numbers.append(link.get('title'))
 
         #Format our model numbers to be readable
         part_numbers.append(format_model_number(unformatted_model_numbers))
@@ -89,36 +103,35 @@ def export_to_xlsx(model_numbers_formatted,part_numbers):
     formatted excel document using pandas.
     Asks user what they want the new file to be called.
     """
-    print("\n")
-
-    final_data_frame = pd.DataFrame({'Part Numbers':part_numbers},columns=['Part Numbers','Model Numbers'])
+    final_data_frame = pd.DataFrame({'Part Numbers':part_numbers},columns=['Part Numbers','Model Numbers'.ljust(150)])
     for i in range(len(model_numbers_formatted)):
         model_num_str = ""
         for model in model_numbers_formatted[i]:
             model_num_str=model_num_str+model+"/"
-
         final_data_frame.iat[i,1] = model_num_str
-    print(final_data_frame)
+
     path_to_exported_xlsx = "Untitled"
     userinput = input("\nSearch Complete!\n\nPlease name the excel document (do not include file extension):")
     if userinput:
         path_to_exported_xlsx = userinput
-        pass
 
     #setup ExcelWriter object and use it to auto resize model_number column and then export
     writer = pd.ExcelWriter(path_to_exported_xlsx+".xlsx", engine='xlsxwriter')
     final_data_frame.to_excel(writer, sheet_name='Model Numbers')
     workbook = writer.book
     worksheet = writer.sheets['Model Numbers']
-    column_len = final_data_frame[final_data_frame.columns[1]].astype(str).str.len().max()
-    column_len = max(column_len, len(final_data_frame.columns[1])) + 10
-    worksheet.set_column(2,2, column_len)
+
+    #format column width and textwrap
+    text_wrap = workbook.add_format({'text_wrap': True})
+    worksheet.set_column(2,2, 150,text_wrap)
     worksheet.set_column(1,1,15)
     try:
         writer.save()
     except Exception as err:
         print("Error saving file! Maybe your filename is invalid?")
-    pass
 
-
-export_to_xlsx(search_for_models(part_list), part_list)
+retrieve_part_numbers()
+if(len(part_list)>0):
+    export_to_xlsx(search_for_models(part_list), part_list)
+else:
+    print("Part list is empty! Please paste your part numbers 'Put_part_numbers_here.txt', save the file, and restart the program")
