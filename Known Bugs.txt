@@ -1,7 +1,7 @@
 #######################################
 This is a bug list for the Model Number Searcher Program
 This list contains all bugs that I know about(In this version of the program)
-If you find other bugs please email me : austin.arrell@ricoh-usa.com
+If you find other bugs please email me 
 in your email please tell me which version of the program you have(I am have already fixed in newer versions)
 
 Remember, I am still learning!
@@ -9,11 +9,4 @@ Remember, I am still learning!
 
 -If there is a typo in the HTML on Precision Roller the model number will not come back correct
 	Example:	(MPC3003 displaying as MP3003)
-	Notes:		(Since the program looks for Ricoh, Savin, Lanier and Alficio part numbers,
-				it is likely that the right part number will still be included as a typo
-				in each one is highly improbable)
-	Solutions:	(I may have to compare the numerical component of the returned model numbers,
-				and filter it out based on duplicates)
-			(The above solution could cause other bugs so for now I will let it be)
-
-
+	
