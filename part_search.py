@@ -32,7 +32,6 @@ def format_model_number(model_numbers_to_format):
 
     #cut the garbage away from our model numbers
     for model_number in model_numbers_to_format:
-        print(model_number)
         model_number = model_number.replace("-","").replace(" ","")
         model_number = model_number.replace("TonerCartridges,SuppliesandParts","")
         model_number = model_number.replace("Ricoh","")
@@ -56,7 +55,7 @@ def search_for_models(part_num):
     #list that will contain finalized part numbers
     part_numbers = []
     for i in range(len(part_num)):
-        print("Searching for part:{}/{}...{}".format(i,len(part_num),str(part_num[i]).rjust(15,'.')))
+        print("Searching for part:{}/{}...{}".format(i+1,len(part_num),str(part_num[i]).rjust(15,'.')))
         #Create a temporary list to store model numbers
         unformatted_model_numbers = []
         #Process part number into URL then search html with Beautiful Soup
@@ -76,6 +75,14 @@ def search_for_models(part_num):
 
     return part_numbers
 
+def search_for_part_description(url_to_search):
+    """
+    Takes a string as a param, searches a url for a description of the part
+    Returns a list of descriptions. (Ill add this later)
+    """
+    pass
+
+
 def export_to_xlsx(model_numbers_formatted,part_numbers):
     """
     Takes the finalized lists of model numbers and exports them into a nicely
@@ -83,10 +90,34 @@ def export_to_xlsx(model_numbers_formatted,part_numbers):
     Asks user what they want the new file to be called.
     """
     print("\n")
+
+    final_data_frame = pd.DataFrame({'Part Numbers':part_numbers},columns=['Part Numbers','Model Numbers'])
     for i in range(len(model_numbers_formatted)):
-        print("Model Numbers for part:{}".format(part_numbers[i]))
+        model_num_str = ""
         for model in model_numbers_formatted[i]:
-            print(model.rjust(20))
+            model_num_str=model_num_str+model+"/"
+
+        final_data_frame.iat[i,1] = model_num_str
+    print(final_data_frame)
+    path_to_exported_xlsx = "Untitled"
+    userinput = input("\nSearch Complete!\n\nPlease name the excel document (do not include file extension):")
+    if userinput:
+        path_to_exported_xlsx = userinput
+        pass
+
+    #setup ExcelWriter object and use it to auto resize model_number column and then export
+    writer = pd.ExcelWriter(path_to_exported_xlsx+".xlsx", engine='xlsxwriter')
+    final_data_frame.to_excel(writer, sheet_name='Model Numbers')
+    workbook = writer.book
+    worksheet = writer.sheets['Model Numbers']
+    column_len = final_data_frame[final_data_frame.columns[1]].astype(str).str.len().max()
+    column_len = max(column_len, len(final_data_frame.columns[1])) + 10
+    worksheet.set_column(2,2, column_len)
+    worksheet.set_column(1,1,15)
+    try:
+        writer.save()
+    except Exception as err:
+        print("Error saving file! Maybe your filename is invalid?")
     pass
 
 
