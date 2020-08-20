@@ -45,11 +45,19 @@ def format_model_number(model_numbers_to_format):
         model_number = model_number.replace("-","").replace(" ","")
         model_number = model_number.replace("TONERCARTRIDGES,SUPPLIESANDPARTS","")
         model_number = model_number.replace("RICOH","")
-        model_number = model_number.replace("LANIER","")
         model_number = model_number.replace("ALFICIO","")
         model_number = model_number.replace("AFICIO","")
         model_number = model_number.replace("SP","")
         model_number = model_number.replace("DN","")
+        model_number = model_number.replace("EX","")
+        model_number = model_number.replace("G","")
+        model_number = model_number.replace("F","")
+        model_number = model_number.replace("S","")
+        model_number = model_number.replace("E1","")
+        model_number = model_number.replace("A","")
+        model_number = model_number.replace("B","")
+
+
         #cleaning data
         if not model_number.count("MP3003") and not  model_number.count("MP4503") and not  model_number.count("MPC80022"):
             formatted_model_numbers.append(model_number)
@@ -81,7 +89,7 @@ def search_for_models(part_num):
         #Search the html for model numbers
         for link in links_from_url:
             if(str(link.get('title')).count('Toner Cartridges,')):
-                if(str(link.get('title')).upper().count('RICOH') or str(link.get('title')).upper().count('LANIER') or str(link.get('title')).upper().count('ALFICIO')):
+                if(str(link.get('title')).upper().count('RICOH') or str(link.get('title')).upper().count('ALFICIO')):
                     unformatted_model_numbers.append(link.get('title'))
 
         #Format our model numbers to be readable
