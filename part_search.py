@@ -4,8 +4,7 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup as bs
 from tkinter import simpledialog
-
-
+import tkinter.font as tkFont
 
 class Application(tk.Frame):
     def __init__(self, master=None):
@@ -26,23 +25,43 @@ class Application(tk.Frame):
 
 
     def create_widgets(self):
-        self.header = tk.Label(self,text="Paste Part Numbers Here")
+        self.label_font = tkFont.Font(family="Lucida Grande", size=14)
+
+        self.header = tk.Label(self,text="Paste Part Numbers",font=self.label_font)
         self.header.pack()
-        self.text_field = tk.Text(self,borderwidth=10,background="grey",relief="solid",fg="black")
+
+        self.main_frame = tk.Frame(self,borderwidth=10)
+        self.main_frame.pack()
+
+        self.bottom_frame = tk.Frame(self.main_frame)
+        self.bottom_frame.pack(side="bottom")
+        self.button_frame = tk.Frame(self.main_frame)
+        self.button_frame.pack(side="bottom")
+
+        self.left_frame = tk.Frame(self.main_frame)
+        self.left_frame.pack(side = "left")
+        self.right_frame = tk.Frame(self.main_frame)
+        self.right_frame.pack(side = "right")
+
+        self.text_frame = tk.Frame(self.left_frame)
+        self.text_frame.pack()
+        self.text_field = tk.Text(self.text_frame,borderwidth=3,width=35, height=10,background="white",relief="solid",fg="black")
         self.text_field.pack()
-        self.output_field = tk.Text(self,height=4,borderwidth=10,background="grey",relief="solid",fg="black")
-        self.output_field.insert(tk.END, "Information will show here!\nPart numbers go in the box above!")
+
+        self.output_field = tk.Text(self.right_frame,borderwidth=3,width=35, height=10,background="white",relief="solid",fg="black")
+        self.output_field.insert(tk.END, "Information will show here!\n\nPart numbers go in the left box!")
         self.output_field.pack()
 
 
-        self.quit = tk.Button(self, text="QUIT", bg="red",command=self.master.destroy)
-        self.quit.pack(side="bottom")
+        self.quit = tk.Button(self.button_frame, text="QUIT",command=self.master.destroy)
+        self.quit.pack(side="right")
+        self.submit = tk.Button(self.button_frame, text="Submit!",command=self.submit)
+        self.submit.pack(side="left")
 
-        self.submit = tk.Button(self, text="Submit!", bg="green",command=self.submit)
-        self.submit.pack(side="bottom")
-
-        self.progress = ttk.Progressbar(root, orient = tk.HORIZONTAL, length = 300, mode = 'determinate')
-        self.progress.pack()
+        self.progress_header = tk.Label(self.bottom_frame,text="Progress:",font=self.label_font)
+        self.progress_header.pack()
+        self.progress = ttk.Progressbar(self.bottom_frame, orient = tk.HORIZONTAL, length = 300, mode = 'determinate')
+        self.progress.pack(side="right")
 
 
     def submit(self):
@@ -89,7 +108,7 @@ class Application(tk.Frame):
         self.console_clear()
         self.progress["value"] = 0
         for i in range(len(part_num)):
-            self.console_print("Searching for part:{}/{}...{}".format(i+1,len(part_num),str(part_num[i]).rjust(15,'.'))+"\n")
+            self.console_print("Searching part:{}/{}...{}".format(i+1,len(part_num),str(part_num[i]).rjust(0,'.'))+"\n")
             self.progress["value"] += 100/len(part_num)
             self.update_idletasks()
             #Create a temporary list to store model numbers
@@ -121,7 +140,7 @@ class Application(tk.Frame):
             final_data_frame.iat[i,1] = model_num_str
 
         path_to_exported_xlsx = "Untitled"
-        userinput = simpledialog.askstring(title="Test",prompt="Please name your file:")
+        userinput = simpledialog.askstring(title="Complete!",prompt="Please name your file:")
         if userinput:
             path_to_exported_xlsx = userinput
 
@@ -145,6 +164,6 @@ class Application(tk.Frame):
 
 root = tk.Tk()
 root.title("Part Searcher")
-root.geometry("420x640+400+200")
+root.geometry("600x280+400+200")
 app = Application(master=root)
 app.mainloop()
